@@ -1,13 +1,11 @@
 package repository
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func GetBillboard_test(t *testing.T) {
+func TestGetBillboard(t *testing.T) {
 	err := GetBillboard()
 	assert.NoError(t, err)
-
 }
-
