@@ -2,11 +2,12 @@ package sqlstore
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
 )
 
 func NewClient(dbname, username, password string) (*sql.DB, error) {
-	connStr := "user=postgres password=mypass dbname=productdb sslmode=disable"
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", username, password, dbname)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
