@@ -23,5 +23,12 @@ func startServer() {
 		})
 	})
 	r.Run() // listen and serve on 0.0.0.0:8080
+}
 
+func wrapErrorFromDB(err error) error {
+	if err == nil {
+		return err
+	}
+	utf8Text, _ := charmap.Windows1251.NewDecoder().String(err.Error())
+	return fmt.Errorf(utf8Text)
 }
