@@ -9,7 +9,7 @@ import (
 
 func main() {
 	fmt.Println("hello")
-	_, err := sqlstore.NewClient("ToDelete", "postgres", "Tylpa31")
+	_, err := sqlstore.NewClient("ToDelete", "postgres", "nav461")
 	if err != nil {
 		fmt.Println(wrapErrorFromDB(err))
 	}

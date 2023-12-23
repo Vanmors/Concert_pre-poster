@@ -1,11 +1,15 @@
 package repository
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetBillboard(t *testing.T) {
-	err := GetBillboard()
+	billboards, err := GetBillboard()
+	for _, val := range billboards{
+		t.Logf("%+v", val)
+	}
 	assert.NoError(t, err)
 }
