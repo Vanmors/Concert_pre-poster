@@ -1,22 +1,24 @@
 package main
 
 import (
+	"concert_pre-poster/internal/transport"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/text/encoding/charmap"
 )
 
+
 func main() {
-	fmt.Println("hello")
+	http.HandleFunc("/", transport.IndexHandler)
+	http.HandleFunc("/submit", transport.SubmitHandler)
+	http.ListenAndServe(":8080", nil)
 }
 
 func startServer() {
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	r.POST("/user", transport.GetData)
 	r.Run() // listen and serve on 0.0.0.0:8080
 }
 

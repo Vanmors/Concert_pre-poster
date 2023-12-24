@@ -38,14 +38,13 @@ func (b *BillboardPsql) GetBillboard() ([]domain.Billboard, error) {
 }
 
 
-func (b * BillboardPsql) AddBillboard(relevance bool, description string, city string, age_limit) error {
+func (b * BillboardPsql) AddBillboard(relevance bool, description string, city string, age_limit int) error {
 	_, err := b.conn.Query("INSERT INTO billboard (relevance, description, city, age_limit) VALUES (?, ?, ?, ?)",
-	relevance, description, city, age_limit
+	relevance, description, city, age_limit)
 	if err != nil {
 		return wrapErrorFromDB(err)
 	}
 	return nil
-)
 }
 
 func (b *BillboardPsql) DeleteBilboardById(id int) error {
@@ -56,18 +55,18 @@ func (b *BillboardPsql) DeleteBilboardById(id int) error {
 	return nil
 }
 
-func (b *BillboardPsql) UpdateBillboardById(id int, coloumn string, value) error {
-	_, err = b.conn.Query("UPDATE billboard SET ? = ? WHERE id = ?", coloumn, value, id)
-	if err != nil {
-		return wrapErrorFromDB(err)
-	}
-	return nil
-}
+// func (b *BillboardPsql) UpdateBillboardById(id int, coloumn string, value) error {
+// 	_, err = b.conn.Query("UPDATE billboard SET ? = ? WHERE id = ?", coloumn, value, id)
+// 	if err != nil {
+// 		return wrapErrorFromDB(err)
+// 	}
+// 	return nil
+// }
 
 func (b *BillboardPsql) GetBillboardByID(id int) (domain.Billboard, error) {
 	rows, err := b.conn.Query("SELECT * FROM billboard WHERE id = ?", id)
 	if err != nil {
-		return nil, err
+		return domain.Billboard{}, err
 	}
 	defer rows.Close()
 
@@ -76,13 +75,13 @@ func (b *BillboardPsql) GetBillboardByID(id int) (domain.Billboard, error) {
 		billboard := domain.Billboard{}
 		err := rows.Scan(&billboard.Id, &billboard.Relevance, &billboard.Description, &billboard.City, &billboard.Age_limit)
 		if err != nil {
-			return nill, err
+			return domain.Billboard{}, err
 		}
 		billboards = append(billboards, billboard)
 	}
 
 	if len(billboards) == 0 {
-		return nil, errors.New("No billboard found with the specified ID")
+		return domain.Billboard{}, err
 	}
 
 	return billboards[0], nil

@@ -1,0 +1,39 @@
+./templates/index.html
+{{define "index"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkbox Example</title>
+</head>
+<body>
+    <h1>Choose your role:</h1>
+    <form action="/submit" method="post">
+        <label>
+            <input type="checkbox" name="user" value="user"> User
+        </label>
+        <label>
+            <input type="checkbox" name="executor" value="executor"> Executor
+        </label>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- <script>
+        function submitForm() {
+            const form = document.getElementById('roleForm');
+            const formData = new FormData(form);
+            console.log(form)
+            fetch('/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Handle the response data as needed
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script> -->
+</body>
+</html>
+{{end}}
