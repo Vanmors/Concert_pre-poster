@@ -1,7 +1,6 @@
 package main
 
 import (
-	"concert_pre-poster/pkg/store/sqlstore"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/text/encoding/charmap"
@@ -9,10 +8,6 @@ import (
 
 func main() {
 	fmt.Println("hello")
-	_, err := sqlstore.NewClient("ToDelete", "postgres", "nav461")
-	if err != nil {
-		fmt.Println(wrapErrorFromDB(err))
-	}
 }
 
 func startServer() {
