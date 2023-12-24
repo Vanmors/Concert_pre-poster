@@ -2,22 +2,28 @@ package repository
 
 import (
 	"concert_pre-poster/internal/domain"
-	"concert_pre-poster/pkg/store/sqlstore"
+	"database/sql"
 	"fmt"
 
 	"golang.org/x/text/encoding/charmap"
 )
 
-func GetBillboard() ([]domain.Billboard, error) {
-	db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "password")
-	if err != nil {
-		return nil, wrapErrorFromDB(err)
-	}
+type BillboardPsql struct {
+	conn *sql.DB
+}
 
-	rows, err := db.Query("SELECT * FROM billboard")
+func NewBillboardPsql(db *sql.DB) *BillboardPsql {
+	return &BillboardPsql{
+		conn: db,
+	}
+}
+
+func (b *BillboardPsql) GetBillboard() ([]domain.Billboard, error) {
+	rows, err := b.conn.Query("SELECT * FROM billboard")
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var billboards []domain.Billboard
 	for rows.Next() {
 		billboard := domain.Billboard{}
@@ -27,8 +33,6 @@ func GetBillboard() ([]domain.Billboard, error) {
 		}
 		billboards = append(billboards, billboard)
 	}
-
-	rows.Close()
 
 	return billboards, nil
 }

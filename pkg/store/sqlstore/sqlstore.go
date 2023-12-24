@@ -1,8 +1,8 @@
 package sqlstore
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 
 	_ "github.com/lib/pq"
 )
