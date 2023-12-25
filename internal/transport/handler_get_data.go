@@ -25,7 +25,7 @@ type PageData struct {
 
 type RoleData struct {
 	User     bool `json:"user"`
-	Executor bool `json:"executor"`
+	Artist bool `json:"artist"`
 }
 
 func GetData(c *gin.Context) {
@@ -67,10 +67,10 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	if user == "user" {
 		roleData.User = true
 	} else {
-		roleData.Executor = true
+		roleData.Artist = true
 	}
 
-	fmt.Printf("User role: %t, Executor role: %t\n", roleData.User, roleData.Executor)
+	fmt.Printf("User role: %t, Executor role: %t\n", roleData.User, roleData.Artist)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -79,6 +79,23 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 
 func OutputBillboards(w http.ResponseWriter, r *http.Request) {
 
+	var roleData RoleData
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user := r.Form.Get("role")
+	// executor := r.Form.Get("executor")
+	if user == "user" {
+		roleData.User = true
+	} else {
+		roleData.Artist = true
+	}
+
+	fmt.Printf("User role: %t, Executor role: %t\n", roleData.User, roleData.Artist)
+
 	// Загружаем HTML-файл из директории ./templates
 	tmpl, err := template.ParseFiles("./templates/billboards.html")
 	if err != nil {
@@ -86,7 +103,7 @@ func OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "password")
+	db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "nav461")
 	billboardRepo := repository.NewBillboardPsql(db)
 	billboards, err := billboardRepo.GetBillboard()
 	for _, val := range billboards {
@@ -97,7 +114,13 @@ func OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role := "user" // Замените на вашу логику получения роли
+	var role string // Замените на вашу логику получения роли
+
+	if roleData.User == true {
+		role = "user"
+	} else if roleData.Artist == true{
+		role = "artist"
+	}
 
 	// Создаем структуру PageData для передачи данных в шаблон
 	data := PageData{
