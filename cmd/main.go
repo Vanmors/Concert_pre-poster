@@ -12,7 +12,8 @@ import (
 
 func main() {
 	http.HandleFunc("/", transport.IndexHandler)
-	http.HandleFunc("/submit", transport.SubmitHandler)
+	// http.HandleFunc("/submit", transport.SubmitHandler)
+	http.HandleFunc("/submit", transport.OutputBillboards)
 	http.ListenAndServe(":8080", nil)
 }
 

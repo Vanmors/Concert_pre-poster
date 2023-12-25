@@ -1,0 +1,23 @@
+{{define "billboards"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Billboards List</title>
+</head>
+<body>
+    <h1>Role: {{.Role}}</h1>
+    <h2>Billboards List</h2>
+    <ul>
+        {{range .Billboards}}
+            <li>
+                <strong>ID:</strong> {{.Id}}, 
+                <strong>Relevance:</strong> {{.Relevance}}, 
+                <strong>Description:</strong> {{.Description}}, 
+                <strong>City:</strong> {{.City}}, 
+                <strong>Age Limit:</strong> {{.Age_limit}}
+            </li>
+        {{end}}
+    </ul>
+</body>
+</html>
+{{end}}

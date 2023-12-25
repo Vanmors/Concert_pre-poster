@@ -1,6 +1,10 @@
 package transport
 
 import (
+	// "concert_pre-poster/internal/domain"
+	"concert_pre-poster/internal/domain"
+	"concert_pre-poster/internal/repository"
+	"concert_pre-poster/pkg/store/sqlstore"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -14,6 +18,16 @@ type RequestData struct {
 	TypeOfTask string `json:"typeOfTask"`
 }
 
+type PageData struct {
+	Billboards []domain.Billboard
+	Role       string
+}
+
+type RoleData struct {
+	User     bool `json:"user"`
+	Executor bool `json:"executor"`
+}
+
 func GetData(c *gin.Context) {
 	var requestData RequestData
 
@@ -23,11 +37,6 @@ func GetData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Data processed successfully"})
-}
-
-type RoleData struct {
-	User     bool `json:"user"`
-	Executor bool `json:"executor"`
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,17 +62,12 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := r.Form.Get("user")
-	executor := r.Form.Get("executor")
+	user := r.Form.Get("role")
+	// executor := r.Form.Get("executor")
 	if user == "user" {
 		roleData.User = true
 	} else {
-		roleData.User = false
-	}
-	if executor == "executor" {
 		roleData.Executor = true
-	} else {
-		roleData.Executor = false
 	}
 
 	fmt.Printf("User role: %t, Executor role: %t\n", roleData.User, roleData.Executor)
@@ -71,4 +75,40 @@ func SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(roleData)
+}
+
+func OutputBillboards(w http.ResponseWriter, r *http.Request) {
+
+	// Загружаем HTML-файл из директории ./templates
+	tmpl, err := template.ParseFiles("./templates/billboards.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "password")
+	billboardRepo := repository.NewBillboardPsql(db)
+	billboards, err := billboardRepo.GetBillboard()
+	for _, val := range billboards {
+		fmt.Printf("%+v\n", val)
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	role := "user" // Замените на вашу логику получения роли
+
+	// Создаем структуру PageData для передачи данных в шаблон
+	data := PageData{
+		Billboards: billboards,
+		Role:       role,
+	}
+
+	// Выполняем шаблон с данными и выводим результат в ResponseWriter
+	err = tmpl.ExecuteTemplate(w, "billboards", data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
