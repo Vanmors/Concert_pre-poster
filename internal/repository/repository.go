@@ -7,6 +7,9 @@ import (
 
 type Billboard interface {
 	GetBillboard() ([]domain.Billboard, error)
+	DeleteBilboardById(id int) error
+	AddBillboard(relevance bool, description string, city string, age_limit int) (int, error)
+	GetBillboardByID(id int) (domain.Billboard, error)
 }
 
 type PreliminaryResults interface {
@@ -16,7 +19,7 @@ type FinalResults interface {
 }
 
 type FirstVotingStage interface {
-	DoVote(idDate, idBillboard, idUser, maxTicketPrice int) error
+	DoVote(idDate, idBillboard, idUser, maxTicketPrice int) (int, error)
 	DoVoteInBatch(idDates []int, idBillboard, idUser, maxTicketPrice int) error
 	GetFirstVotingInfoForUser(userId int) (*[]domain.FirstVoting, error)
 	GetFirstVotingInfoForBillboard(billboardId int) (*[]domain.FirstVoting, error)

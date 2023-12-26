@@ -4,7 +4,6 @@ import (
 	// "concert_pre-poster/internal/domain"
 	"concert_pre-poster/internal/domain"
 	"concert_pre-poster/internal/repository"
-	"concert_pre-poster/pkg/store/sqlstore"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -24,11 +23,19 @@ type PageData struct {
 }
 
 type RoleData struct {
-	User     bool `json:"user"`
+	User   bool `json:"user"`
 	Artist bool `json:"artist"`
 }
 
-func GetData(c *gin.Context) {
+type Handler struct {
+	Repos *repository.Repositories
+}
+
+func NewHandler(repos *repository.Repositories) *Handler {
+	return &Handler{Repos: repos}
+}
+
+func (_ *Handler) GetData(c *gin.Context) {
 	var requestData RequestData
 
 	if err := c.ShouldBindJSON(&requestData); err != nil {
@@ -39,7 +46,7 @@ func GetData(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Data processed successfully"})
 }
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("./templates/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -53,31 +60,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SubmitHandler(w http.ResponseWriter, r *http.Request) {
-
-	var roleData RoleData
-
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	user := r.Form.Get("role")
-	// executor := r.Form.Get("executor")
-	if user == "user" {
-		roleData.User = true
-	} else {
-		roleData.Artist = true
-	}
-
-	fmt.Printf("User role: %t, Executor role: %t\n", roleData.User, roleData.Artist)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(roleData)
-}
-
-func OutputBillboards(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 
 	var roleData RoleData
 
@@ -103,9 +86,10 @@ func OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "nav461")
-	billboardRepo := repository.NewBillboardPsql(db)
-	billboards, err := billboardRepo.GetBillboard()
+	//db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "nav461")
+
+	billboards, err := h.Repos.Billboard.GetBillboard()
+
 	for _, val := range billboards {
 		fmt.Printf("%+v\n", val)
 	}
@@ -118,7 +102,7 @@ func OutputBillboards(w http.ResponseWriter, r *http.Request) {
 
 	if roleData.User == true {
 		role = "user"
-	} else if roleData.Artist == true{
+	} else if roleData.Artist == true {
 		role = "artist"
 	}
 
@@ -134,4 +118,28 @@ func OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *Handler) SubmitHandler(w http.ResponseWriter, r *http.Request) {
+
+	var roleData RoleData
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user := r.Form.Get("role")
+	// executor := r.Form.Get("executor")
+	if user == "user" {
+		roleData.User = true
+	} else {
+		roleData.Artist = true
+	}
+
+	fmt.Printf("User role: %t, Executor role: %t\n", roleData.User, roleData.Artist)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(roleData)
 }

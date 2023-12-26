@@ -37,14 +37,22 @@ func (b *BillboardPsql) GetBillboard() ([]domain.Billboard, error) {
 	return billboards, nil
 }
 
+func (b *BillboardPsql) AddBillboard(relevance bool, description string, city string, age_limit int) (int, error) {
+	/*
+		_, err := b.conn.Query("INSERT INTO billboard (relevance, description, city, age_limit) VALUES (?, ?, ?, ?)",
+		relevance, description, city, age_limit)
 
-func (b * BillboardPsql) AddBillboard(relevance bool, description string, city string, age_limit int) error {
-	_, err := b.conn.Query("INSERT INTO billboard (relevance, description, city, age_limit) VALUES (?, ?, ?, ?)",
-	relevance, description, city, age_limit)
+	*/
+	tmp := b.conn.QueryRow(
+		"INSERT INTO billboard (relevance, description, city, age_limit) VALUES ($1, $2, $3, $4) returning id",
+		relevance, description, city, age_limit,
+	)
+	var id int
+	err := tmp.Scan(&id)
 	if err != nil {
-		return wrapErrorFromDB(err)
+		return 0, wrapErrorFromDB(err)
 	}
-	return nil
+	return id, nil
 }
 
 func (b *BillboardPsql) DeleteBilboardById(id int) error {
@@ -86,7 +94,6 @@ func (b *BillboardPsql) GetBillboardByID(id int) (domain.Billboard, error) {
 
 	return billboards[0], nil
 }
-
 
 func wrapErrorFromDB(err error) error {
 	if err == nil {

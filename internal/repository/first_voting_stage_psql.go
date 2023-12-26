@@ -3,6 +3,7 @@ package repository
 import (
 	"concert_pre-poster/internal/domain"
 	"database/sql"
+	"time"
 )
 
 /*
@@ -22,15 +23,26 @@ func NewFirstVotingStagePsql(db *sql.DB) *FirstVotingStagePsql {
 	}
 }
 
-func (f *FirstVotingStagePsql) DoVote(idDate, idBillboard, idUser, maxTicketPrice int) error {
-	_, err := f.conn.Exec(
-		"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES (?, ?, ?, ?)",
+func (f *FirstVotingStagePsql) DoVote(idBillboard, idUser, idDate, maxTicketPrice int) (int, error) {
+	/*
+		_, err := f.conn.Exec(
+			"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES (?, ?, ?, ?)",
+			idBillboard, idUser, idDate, maxTicketPrice,
+		)
+
+	*/
+	tmp := f.conn.QueryRow(
+		"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES ($1, $2, $3, $4) returning id",
 		idBillboard, idUser, idDate, maxTicketPrice,
 	)
+	var id int
+	err := tmp.Scan(&id)
+
 	if err != nil {
-		return wrapErrorFromDB(err)
+		//return wrapErrorFromDB(err)
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 func (f *FirstVotingStagePsql) DoVoteInBatch(idDates []int, idBillboard, idUser, maxTicketPrice int) error {
@@ -82,4 +94,25 @@ func (f *FirstVotingStagePsql) GetFirstVotingInfoForBillboard(billboardId int) (
 	}
 
 	return &firstVotings, nil
+}
+
+func (f *FirstVotingStagePsql) AddDate(idBillboard int, date time.Time) (int, error) {
+	/*
+		_, err := f.conn.Exec(
+			"INSERT INTO date (id_billboard, date ) VALUES (?, ?)",
+			idBillboard, date,
+		)
+
+	*/
+	tmp := f.conn.QueryRow(
+		"INSERT INTO date (id_billboard, date )  VALUES ($1, $2) returning id",
+		idBillboard, date,
+	)
+	var id int
+	err := tmp.Scan(&id)
+
+	if err != nil {
+		return 0, wrapErrorFromDB(err)
+	}
+	return id, nil
 }
