@@ -19,7 +19,7 @@
         {{end}}
     </ul>
     <label for="max_price"><strong>Максимальная цена, которую вы готовы заплатить за концерт</strong></label>
-    <input type="number" name="max_price" id="max_price">
+    <input type="number" min = 100 max = 1000000 name="max_price" id="max_price">
     <input type="hidden" name="billboard_id" id="billboard_id" value="{{.IdBillboard}}">
     <input type="submit" value="Проголосовать">
 </form>

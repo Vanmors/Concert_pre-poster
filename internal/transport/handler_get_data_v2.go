@@ -3,11 +3,13 @@ package transport
 import (
 	"concert_pre-poster/internal/domain"
 	"concert_pre-poster/internal/repository"
+	"concert_pre-poster/internal/service"
 	"concert_pre-poster/pkg/util"
 	"fmt"
-	"github.com/gorilla/mux"
 	"html/template"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Handler2 struct {
@@ -51,10 +53,6 @@ func (h *Handler2) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, val := range billboards {
-		fmt.Printf("%+v\n", val)
-	}
-
 	data := PageData{
 		Billboards: billboards,
 		Role:       role,
@@ -64,7 +62,7 @@ func (h *Handler2) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 
 	if role == "user" {
 		path = "fan_billboards"
-	} else {
+	} else if role == "artist" {
 		path = "performer_billboards"
 	}
 
@@ -183,8 +181,18 @@ func (h *Handler2) PostCreateVotingStructure(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	stringDates := r.Form["dates"]
+
 	idBillboard := r.FormValue("billboard_id")
+	stringDates := r.Form["dates"]
+	for _, date := range stringDates {
+		fmt.Println("Date:", date)
+	}
+
+	err = service.Create_voting_service(idBillboard, stringDates)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	times, err := util.StringsToTimes(stringDates)
 	if err != nil {
