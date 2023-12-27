@@ -3,6 +3,7 @@ package repository
 import (
 	"concert_pre-poster/internal/domain"
 	"concert_pre-poster/pkg/store/sqlstore"
+	"time"
 )
 
 type Billboard interface {
@@ -10,6 +11,7 @@ type Billboard interface {
 	DeleteBilboardById(id int) error
 	AddBillboard(relevance bool, description string, city string, age_limit int) (int, error)
 	GetBillboardByID(id int) (domain.Billboard, error)
+	GetBillboardAvailableDates(billboardId int) ([]*domain.Date, error)
 }
 
 type PreliminaryResults interface {
@@ -23,6 +25,8 @@ type FirstVotingStage interface {
 	DoVoteInBatch(idDates []int, idBillboard, idUser, maxTicketPrice int) error
 	GetFirstVotingInfoForUser(userId int) (*[]domain.FirstVoting, error)
 	GetFirstVotingInfoForBillboard(billboardId int) (*[]domain.FirstVoting, error)
+	AddDate(idBillboard int, date time.Time) (int, error)
+	AddDatesInBatch(idBillboard int, dates []time.Time) error
 }
 
 type Repositories struct {

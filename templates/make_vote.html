@@ -1,0 +1,28 @@
+{{define "make_vote"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Make a vote</title>
+</head>
+<body>
+<h1>Проголосуйте в выбранной вами предафише</h1>
+<h2>Ваша роль: фанат</h2>
+<form action="/make_vote" method="post">
+    <p>Id билборда: {{.IdBillboard}}</p>
+    <strong>Список доступных дат:</strong>
+    <ul>
+        {{range .Dates}}
+        <li>
+            <label for="date_{{.Id}}"><strong>Дата: </strong> {{.Date}}</label>
+            <input type="checkbox" name="date" id="date_{{.Id}}" value="{{.Id}}"> Ваш выбор
+        </li>
+        {{end}}
+    </ul>
+    <label for="max_price"><strong>Максимальная цена, которую вы готовы заплатить за концерт</strong></label>
+    <input type="number" name="max_price" id="max_price">
+    <input type="hidden" name="billboard_id" id="billboard_id" value="{{.IdBillboard}}">
+    <input type="submit" value="Проголосовать">
+</form>
+</body>
+</html>
+{{end}}

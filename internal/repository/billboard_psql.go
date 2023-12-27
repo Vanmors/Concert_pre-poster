@@ -95,6 +95,29 @@ func (b *BillboardPsql) GetBillboardByID(id int) (domain.Billboard, error) {
 	return billboards[0], nil
 }
 
+// через join нужно узнать какие есть доступные даты у конкретного исполнителя.
+func (b *BillboardPsql) GetBillboardAvailableDates(billboardId int) ([]*domain.Date, error) {
+	rows, err := b.conn.Query("SELECT date.id, date FROM billboard JOIN date on billboard.id = date.id_billboard WHERE id_billboard = $1", billboardId)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var dates []*domain.Date
+	for rows.Next() {
+		date := &domain.Date{
+			IdBillboard: billboardId,
+		}
+		err = rows.Scan(&date.Id, &date.Date)
+		if err != nil {
+			return nil, err
+		}
+		dates = append(dates, date)
+	}
+
+	return dates, nil
+}
+
 func wrapErrorFromDB(err error) error {
 	if err == nil {
 		return err

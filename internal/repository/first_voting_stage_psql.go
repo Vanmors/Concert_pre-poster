@@ -48,7 +48,7 @@ func (f *FirstVotingStagePsql) DoVote(idBillboard, idUser, idDate, maxTicketPric
 func (f *FirstVotingStagePsql) DoVoteInBatch(idDates []int, idBillboard, idUser, maxTicketPrice int) error {
 	for _, idDate := range idDates {
 		_, err := f.conn.Exec(
-			"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES (?, ?, ?, ?)",
+			"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES ($1, $2, $3, $4)",
 			idBillboard, idUser, idDate, maxTicketPrice,
 		)
 		if err != nil {
@@ -115,4 +115,17 @@ func (f *FirstVotingStagePsql) AddDate(idBillboard int, date time.Time) (int, er
 		return 0, wrapErrorFromDB(err)
 	}
 	return id, nil
+}
+
+func (f *FirstVotingStagePsql) AddDatesInBatch(idBillboard int, dates []time.Time) error {
+	for _, date := range dates {
+		_, err := f.conn.Exec(
+			"INSERT INTO date (id_billboard, date)  VALUES ($1, $2)",
+			idBillboard, date,
+		)
+		if err != nil {
+			return wrapErrorFromDB(err)
+		}
+	}
+	return nil
 }

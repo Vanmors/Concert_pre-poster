@@ -16,3 +16,12 @@ func TestGetBillboard(t *testing.T) {
 	}
 	assert.NoError(t, err)
 }
+
+func TestBillboardPsql_GetBillboardAvailableDates(t *testing.T) {
+	_, billRepo := prepareRepo(t)
+	dates, err := billRepo.GetBillboardAvailableDates(1)
+	assert.NoError(t, err)
+	for _, val := range dates {
+		t.Logf("%+v", val)
+	}
+}

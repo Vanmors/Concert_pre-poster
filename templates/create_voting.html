@@ -1,0 +1,42 @@
+{{define "create_voting"}}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create voting structure</title>
+  <style>
+    .date-input {
+      margin-bottom: 10px;
+      display: block;  /* вкусовщина, можно поиграться */
+    }
+  </style>
+</head>
+<body>
+<h1>Создайте структуру для вашего голосования:</h1>
+<h2>Ваша роль: исполнитель</h2>
+<p>Id билборда: {{.IdBillboard}}</p>
+<h2>Добавление дат и времени</h2>
+<form id="dateForm" action="/create_voting" method="post">
+  <div id="dateInputs">
+    <!-- Мое добавление полей для ввода (даты, окда) -->
+  </div>
+  <button type="button" onclick="addDateInput()">Добавить дату</button>
+  <br>
+  <input type="hidden" name="billboard_id" id="billboard_id" value="{{.IdBillboard}}">
+  <input type="submit" value="Отправить">
+</form>
+
+<script>
+  function addDateInput() {
+    const dateInputsContainer = document.getElementById('dateInputs');
+
+    const input = document.createElement('input');
+    input.type = 'datetime-local';
+    input.name = 'dates';
+    input.className = 'date-input';
+
+    dateInputsContainer.appendChild(input);
+  }
+</script>
+</body>
+</html>
+{{end}}
