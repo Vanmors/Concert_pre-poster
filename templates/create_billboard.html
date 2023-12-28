@@ -4,20 +4,25 @@
 <head>
     <title>Create Billboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        .label-input-spacing {
+            margin-bottom: 10px; /* Вы можете изменить значение на свое усмотрение */
+        }
+    </style> 
 </head>
 <body>
 <h2>Submit Parameters</h2>
 <form action="/create_billboard" method="post">
     <div class="col-md-6">
-        <label for="description" class="badge rounded-pill bg-primary">Description:</label>
+        <label for="description" class="badge rounded-pill bg-primary label-input-spacing">Description:</label>
         <input type="text" class="form-control" id="description" name="description" required><br>
     </div>
-    <div class="col-md-4">
-        <label for="city" class="badge rounded-pill bg-primary">City:</label>
+    <div class="col-md-4 label-input-spacing">
+        <label for="city" class="badge rounded-pill bg-primary label-input-spacing">City:</label>
         <input type="text" class="form-control" id="city" name="city" required><br>
     </div>
-    <div class="col-md-4">
-        <label for="ageLimit" class="badge rounded-pill bg-primary">Age Limit:</label>
+    <div class="col-md-4 label-input-spacing">
+        <label for="ageLimit" class="badge rounded-pill bg-primary label-input-spacing">Age Limit:</label>
         <input type="number" class="form-control" id="ageLimit" name="ageLimit" required><br>
     </div>
     <input type="submit" class="btn btn-success" value="Submit">
