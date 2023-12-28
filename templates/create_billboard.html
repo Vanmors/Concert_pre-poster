@@ -3,21 +3,25 @@
 <html>
 <head>
     <title>Create Billboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
-    <h2>Submit Parameters</h2>
-    <form action="/create_billboard" method="post">
-        <label for="description">Description:</label>
-        <input type="text" id="description" name="description" required><br>
-
-        <label for="city">City:</label>
-        <input type="text" id="city" name="city" required><br>
-
-        <label for="ageLimit">Age Limit:</label>
-        <input type="number" id="ageLimit" name="ageLimit" required><br>
-
-        <input type="submit" value="Submit">
-    </form>
+<h2>Submit Parameters</h2>
+<form action="/create_billboard" method="post">
+    <div class="col-md-6">
+        <label for="description" class="badge rounded-pill bg-primary">Description:</label>
+        <input type="text" class="form-control" id="description" name="description" required><br>
+    </div>
+    <div class="col-md-4">
+        <label for="city" class="badge rounded-pill bg-primary">City:</label>
+        <input type="text" class="form-control" id="city" name="city" required><br>
+    </div>
+    <div class="col-md-4">
+        <label for="ageLimit" class="badge rounded-pill bg-primary">Age Limit:</label>
+        <input type="number" class="form-control" id="ageLimit" name="ageLimit" required><br>
+    </div>
+    <input type="submit" class="btn btn-success" value="Submit">
+</form>
 </body>
 </html>
 {{end}}
