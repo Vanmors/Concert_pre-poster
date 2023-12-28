@@ -255,8 +255,20 @@ func (h *Handler) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) GetBillboard(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("./templates/create_billboard.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.ExecuteTemplate(w, "create_billboard", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func (h *Handler) PostBillboard(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Я ТУТ")
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -272,14 +284,5 @@ func (h *Handler) PostBillboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNoContent)
 		return
 	}
-	tmpl, err := template.ParseFiles("./templates/create_billboard.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = tmpl.ExecuteTemplate(w, "create_billboard", nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+
 }
