@@ -1,0 +1,23 @@
+{{define "create_billboard"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Billboard</title>
+</head>
+<body>
+    <h2>Submit Parameters</h2>
+    <form action="/create_billboard" method="post">
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required><br>
+
+        <label for="city">City:</label>
+        <input type="text" id="city" name="city" required><br>
+
+        <label for="ageLimit">Age Limit:</label>
+        <input type="number" id="ageLimit" name="ageLimit" required><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+{{end}}

@@ -219,9 +219,9 @@ func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 	billboardId := util.MustAtoi(vars["id"])
 
 	type Voting_Result struct {
-		Id int     `json:"idBillboard"`
-		Count       int     `json:"int"`
-		Average     float64 `json:"float64"`
+		Id      int     `json:"idBillboard"`
+		Count   int     `json:"int"`
+		Average float64 `json:"float64"`
 	}
 
 	count, average, err := service.CalculateMetricsFirstVoting(billboardId)
@@ -233,8 +233,8 @@ func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(average)
 
 	voting_result := Voting_Result{
-		Id: billboardId,
-		Count: count,
+		Id:      billboardId,
+		Count:   count,
 		Average: average,
 	}
 
@@ -245,6 +245,34 @@ func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = tmpl.ExecuteTemplate(w, "result_voting", voting_result)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler2) PostBillboard(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	description := r.Form["description"]
+
+	city := r.FormValue("city")
+	ageLimit := r.FormValue("ageLimit")
+
+	_, err = h.Repos.Billboard.AddBillboard(true, description[0], city, util.MustAtoi(ageLimit))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNoContent)
+		return
+	}
+	tmpl, err := template.ParseFiles("./templates/create_billboard.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.ExecuteTemplate(w, "create_billboard", nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

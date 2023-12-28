@@ -27,7 +27,7 @@ func main() {
 	router.HandleFunc("/create_voting/{id:[0-9]+}", handler.GetCreateVotingStructure).Methods("GET")
 	router.HandleFunc("/create_voting", handler.PostCreateVotingStructure).Methods("POST")
 	router.HandleFunc("/result_voting/{id:[0-9]+}", handler.GetResultVoting).Methods("GET")
-	
+	router.HandleFunc("/create_billboard", handler.PostBillboard).Methods("POST")
 	http.Handle("/", router)
 
 	fmt.Println("Server is listening...")
