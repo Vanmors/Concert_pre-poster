@@ -12,19 +12,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Handler2 struct {
-	*Handler
+type Handler struct {
+	Repos   *repository.Repositories
+	Service *service.Service
 }
 
-func NewHandler2(repos *repository.Repositories) *Handler2 {
-	return &Handler2{
-		Handler: &Handler{
-			Repos: repos,
-		},
+func NewHandler2(repos *repository.Repositories, serv *service.Service) *Handler {
+	return &Handler{
+		Repos:   repos,
+		Service: serv,
 	}
 }
 
-func (h *Handler2) IndexHandler(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("./templates/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -38,7 +38,11 @@ func (h *Handler2) IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
-func (h *Handler2) OutputBillboards(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) OutputBillboards(w http.ResponseWriter, r *http.Request) {
+	type PageData struct {
+		Billboards []domain.Billboard
+		Role       string
+	}
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -84,7 +88,7 @@ func (h *Handler2) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler2) GetMakeVote(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetMakeVote(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	billboardId := util.MustAtoi(vars["id"])
 	type Voting struct {
@@ -117,7 +121,7 @@ func (h *Handler2) GetMakeVote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler2) PostMakeVote(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostMakeVote(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -146,7 +150,7 @@ func (h *Handler2) PostMakeVote(w http.ResponseWriter, r *http.Request) {
 		"Биллборд id: %s Максимальная цена: %s Id Выбранныx дат: %s", idBillboard, maxPrice, stringDates)
 }
 
-func (h *Handler2) GetCreateVotingStructure(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetCreateVotingStructure(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	billboardId := util.MustAtoi(vars["id"])
 	type Voting struct {
@@ -179,7 +183,7 @@ func (h *Handler2) GetCreateVotingStructure(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (h *Handler2) PostCreateVotingStructure(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostCreateVotingStructure(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -192,7 +196,7 @@ func (h *Handler2) PostCreateVotingStructure(w http.ResponseWriter, r *http.Requ
 		fmt.Println("Date:", date)
 	}
 
-	err = service.Create_voting_service(idBillboard, stringDates)
+	err = h.Service.Create_voting_service(idBillboard, stringDates)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -214,7 +218,7 @@ func (h *Handler2) PostCreateVotingStructure(w http.ResponseWriter, r *http.Requ
 		"Биллборд id: %s Выбранные даты: %s", idBillboard, stringDates)
 }
 
-func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	billboardId := util.MustAtoi(vars["id"])
 
@@ -224,7 +228,7 @@ func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 		Average float64 `json:"float64"`
 	}
 
-	count, average, err := service.CalculateMetricsFirstVoting(billboardId)
+	count, average, err := h.Service.CalculateMetricsFirstVoting(billboardId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -251,7 +255,8 @@ func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler2) PostBillboard(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) PostBillboard(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Я ТУТ")
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

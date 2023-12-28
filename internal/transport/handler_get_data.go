@@ -1,17 +1,6 @@
 package transport
 
-import (
-	// "concert_pre-poster/internal/domain"
-	"concert_pre-poster/internal/domain"
-	"concert_pre-poster/internal/repository"
-	"encoding/json"
-	"fmt"
-	"html/template"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-)
-
+/*
 type RequestData struct {
 	Role       string `json:"role"`
 	TypeOfTask string `json:"typeOfTask"`
@@ -143,3 +132,5 @@ func (h *Handler) SubmitHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(roleData)
 }
+
+*/

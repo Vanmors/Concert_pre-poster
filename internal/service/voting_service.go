@@ -6,13 +6,19 @@ import (
 	"time"
 )
 
+type Service struct {
+	repos *repository.Repositories
+}
 
-func Create_voting_service(idBillboard string, stringDates []string) error {
-	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "password")
-//	repos, err := repository.NewRepositories("ToDelete", "postgres", "password")
-	if err != nil {
-		return err
+func NewService(Repos *repository.Repositories) *Service {
+	return &Service{
+		repos: Repos,
 	}
+}
+
+func (s *Service) Create_voting_service(idBillboard string, stringDates []string) error {
+	//repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "password")
+	//repos, err := repository.NewRepositories("ToDelete", "postgres", "Tylpa31")
 
 	var layout = "2006-01-02T15:04"
 
@@ -25,7 +31,7 @@ func Create_voting_service(idBillboard string, stringDates []string) error {
 		if err != nil {
 			return err
 		}
-		_, err = repos.FirstVotingStage.AddDate(idBillboardInt, parsedTime)
+		_, err = s.repos.FirstVotingStage.AddDate(idBillboardInt, parsedTime)
 		if err != nil {
 			return err
 		}
@@ -34,15 +40,16 @@ func Create_voting_service(idBillboard string, stringDates []string) error {
 	return nil
 }
 
+func (s *Service) CalculateMetricsFirstVoting(idBillboard int) (int, float64, error) {
+	//repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
+	//repos, err := repository.NewRepositories("ToDelete", "postgres", "Tylpa31")
+	/*
+		if err != nil {
+			return 0, 0, err
+		}
+	*/
 
-func CalculateMetricsFirstVoting(idBillboard int) (int, float64, error){
-	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
-	if err != nil {
-		return 0, 0, err
-
-	}
-
-	countVotes, averagePrice, err := repos.FirstVotingStage.GetMetrics(idBillboard)
+	countVotes, averagePrice, err := s.repos.FirstVotingStage.GetMetrics(idBillboard)
 	if err != nil {
 		return 0, 0, err
 	}
