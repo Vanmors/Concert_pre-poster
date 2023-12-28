@@ -307,6 +307,10 @@ func (h *Handler) GetBillboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) PostBillboard(w http.ResponseWriter, r *http.Request) {
+	type PageData struct {
+		Billboards []domain.Billboard
+		Role       string
+	}
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -320,6 +324,30 @@ func (h *Handler) PostBillboard(w http.ResponseWriter, r *http.Request) {
 	_, err = h.Repos.Billboard.AddBillboard(true, description[0], city, util.MustAtoi(ageLimit))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNoContent)
+		return
+	}
+
+	billboards, err := h.Repos.Billboard.GetBillboard()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := PageData{
+		Billboards: billboards,
+		Role:       "artist",
+	}
+
+	tmpl, err := template.ParseFiles("./templates/performer_billboards.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "performer_billboards", data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

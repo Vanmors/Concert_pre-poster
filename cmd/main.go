@@ -11,8 +11,8 @@ import (
 )
 
 func main() {
-	//repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
-	repos, err := repository.NewRepositories("ToDelete", "postgres", "Tylpa31")
+	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
+	// repos, err := repository.NewRepositories("ToDelete", "postgres", "Tylpa31")
 	if err != nil {
 		log.Fatal(err)
 	}
