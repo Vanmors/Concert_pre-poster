@@ -122,32 +122,51 @@ func (h *Handler) GetMakeVote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) PostMakeVote(w http.ResponseWriter, r *http.Request) {
+	type UserData struct {
+		StringDates []string
+		MaxPrice    string
+		IdBillboard string
+	}
+
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	stringDates := r.Form["date"]
 
-	maxPrice := r.FormValue("max_price")
-	idBillboard := r.FormValue("billboard_id")
+	userData := UserData{
+		StringDates: r.Form["date"],
+		MaxPrice:    r.FormValue("max_price"),
+		IdBillboard: r.FormValue("billboard_id"),
+	}
 
-	dates, err := util.StringsToInts(stringDates)
+	dates, err := util.StringsToInts(userData.StringDates)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = h.Repos.FirstVotingStage.DoVoteInBatch(dates, util.MustAtoi(idBillboard), 1, util.MustAtoi(maxPrice))
+	err = h.Repos.FirstVotingStage.DoVoteInBatch(dates, util.MustAtoi(userData.IdBillboard),
+		1, util.MustAtoi(userData.MaxPrice))
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Fprintf(w, "Все ок, ваши данные получены и сохранены. "+
-		"Биллборд id: %s Максимальная цена: %s Id Выбранныx дат: %s", idBillboard, maxPrice, stringDates)
+	path := "vote_response"
+	tmpl, err := template.ParseFiles("./templates/" + path + ".html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, path, userData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) GetCreateVotingStructure(w http.ResponseWriter, r *http.Request) {
