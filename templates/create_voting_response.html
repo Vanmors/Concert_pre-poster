@@ -1,0 +1,19 @@
+{{define "create_voting_response"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data received</title>
+</head>
+<body>
+<h1>Все хорошо, ваши данные получены и сохранены.</h1>
+<h2>Полученные данные</h2>
+<p>Номер Биллборда: {{.IdBillboard}}</p>
+<p>Выбранные даты: </p>
+<ul>
+    {{range .StringDates}}
+    <li>{{.}}</li>
+    {{end}}
+</ul>
+</body>
+</html>
+{{end}}

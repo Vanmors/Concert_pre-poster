@@ -203,38 +203,57 @@ func (h *Handler) GetCreateVotingStructure(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *Handler) PostCreateVotingStructure(w http.ResponseWriter, r *http.Request) {
+	type VotingData struct {
+		IdBillboard string
+		StringDates []string
+	}
+
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	idBillboard := r.FormValue("billboard_id")
-	stringDates := r.Form["dates"]
-	for _, date := range stringDates {
+	vtData := VotingData{
+		IdBillboard: r.FormValue("billboard_id"),
+		StringDates: r.Form["dates"],
+	}
+
+	for _, date := range vtData.StringDates {
 		fmt.Println("Date:", date)
 	}
 
-	err = h.Service.Create_voting_service(idBillboard, stringDates)
+	err = h.Service.Create_voting_service(vtData.IdBillboard, vtData.StringDates)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	times, err := util.StringsToTimes(stringDates)
+	times, err := util.StringsToTimes(vtData.StringDates)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = h.Repos.FirstVotingStage.AddDatesInBatch(util.MustAtoi(idBillboard), times)
+	err = h.Repos.FirstVotingStage.AddDatesInBatch(util.MustAtoi(vtData.IdBillboard), times)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Fprintf(w, "Все ок, ваши данные получены и сохранены. "+
-		"Биллборд id: %s Выбранные даты: %s", idBillboard, stringDates)
+	path := "create_voting_response"
+
+	tmpl, err := template.ParseFiles("./templates/" + path + ".html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, path, vtData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *Handler) GetResultVoting(w http.ResponseWriter, r *http.Request) {
