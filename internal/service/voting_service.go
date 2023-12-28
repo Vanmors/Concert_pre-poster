@@ -35,6 +35,17 @@ func Create_voting_service(idBillboard string, stringDates []string) error {
 }
 
 
-// func CalculateMetricsFirstVoting(){
+func CalculateMetricsFirstVoting(idBillboard int) (int, float64, error){
+	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
+	if err != nil {
+		return 0, 0, err
 
-// }
+	}
+
+	countVotes, averagePrice, err := repos.FirstVotingStage.GetMetrics(idBillboard)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return countVotes, averagePrice, nil
+}

@@ -3,6 +3,7 @@ package repository
 import (
 	"concert_pre-poster/internal/domain"
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -128,4 +129,18 @@ func (f *FirstVotingStagePsql) AddDatesInBatch(idBillboard int, dates []time.Tim
 		}
 	}
 	return nil
+}
+
+func (f *FirstVotingStagePsql) GetMetrics(idBillboard int) (int, float64, error) {
+	row := f.conn.QueryRow("select count(*), avg(max_ticket_price) from first_voting where id_billboard = $1", idBillboard)
+
+	var count int
+	var average_ticket_price float64
+
+	err := row.Scan(&count, &average_ticket_price)
+	if err != nil {
+		fmt.Println("Ошибка при сканировании значений:", err)
+		return 0, 0, err
+	}
+	return count, average_ticket_price, nil
 }

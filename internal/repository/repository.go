@@ -27,6 +27,7 @@ type FirstVotingStage interface {
 	GetFirstVotingInfoForBillboard(billboardId int) (*[]domain.FirstVoting, error)
 	AddDate(idBillboard int, date time.Time) (int, error)
 	AddDatesInBatch(idBillboard int, dates []time.Time) error
+	GetMetrics(idBillboard int) (int, float64, error)
 }
 
 type Repositories struct {

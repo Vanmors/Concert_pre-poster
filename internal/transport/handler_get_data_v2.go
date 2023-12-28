@@ -66,6 +66,11 @@ func (h *Handler2) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		path = "performer_billboards"
 	}
 
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	tmpl, err := template.ParseFiles("./templates/" + path + ".html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -181,7 +186,6 @@ func (h *Handler2) PostCreateVotingStructure(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-
 	idBillboard := r.FormValue("billboard_id")
 	stringDates := r.Form["dates"]
 	for _, date := range stringDates {
@@ -208,4 +212,41 @@ func (h *Handler2) PostCreateVotingStructure(w http.ResponseWriter, r *http.Requ
 
 	fmt.Fprintf(w, "Все ок, ваши данные получены и сохранены. "+
 		"Биллборд id: %s Выбранные даты: %s", idBillboard, stringDates)
+}
+
+func (h *Handler2) GetResultVoting(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	billboardId := util.MustAtoi(vars["id"])
+
+	type Voting_Result struct {
+		Id int     `json:"idBillboard"`
+		Count       int     `json:"int"`
+		Average     float64 `json:"float64"`
+	}
+
+	count, average, err := service.CalculateMetricsFirstVoting(billboardId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(count)
+	fmt.Println(average)
+
+	voting_result := Voting_Result{
+		Id: billboardId,
+		Count: count,
+		Average: average,
+	}
+
+	tmpl, err := template.ParseFiles("./templates/result_voting.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "result_voting", voting_result)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "password")
+	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
 	// repos, err := repository.NewRepositories("ToDelete", "postgres", "password")
 	if err != nil {
 		log.Fatal(err)
@@ -26,6 +26,8 @@ func main() {
 	router.HandleFunc("/make_vote", handler.PostMakeVote).Methods("POST")
 	router.HandleFunc("/create_voting/{id:[0-9]+}", handler.GetCreateVotingStructure).Methods("GET")
 	router.HandleFunc("/create_voting", handler.PostCreateVotingStructure).Methods("POST")
+	router.HandleFunc("/result_voting/{id:[0-9]+}", handler.GetResultVoting).Methods("GET")
+	
 	http.Handle("/", router)
 
 	fmt.Println("Server is listening...")
