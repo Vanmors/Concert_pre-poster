@@ -1,27 +1,94 @@
 {{define "performer_billboards"}}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Billboards List</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <style>
+    body {
+      background-color: #f8f9fa; /* Background color */
+      padding: 20px;
+    }
+
+    h1, h2 {
+      color: #007bff; /* Header text color */
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      margin-bottom: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    th {
+      background-color: #007bff; /* Header background color */
+      color: #007bff; /* Header text color */
+    }
+
+    li {
+      background-color: #fff; /* Cell background color */
+      margin: 0 0 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    strong {
+      color: #343a40; /* Bold text color */
+    }
+
+    a {
+      color: #dc3545; /* Link color */
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 <h1>Role: {{.Role}}</h1>
 <h2>Billboards List</h2>
 <strong>Создать предафишу: </strong> <a href="/create_billboard">Создать</a>
-<ul>
+<table class="table">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Relevance</th>
+    <th>Description</th>
+    <th>City</th>
+    <th>Age Limit</th>
+    <th>Создать голосование</th>
+    <th>Результаты голосования</th>
+  </tr>
+  </thead>
+  <tbody>
   {{range .Billboards}}
-  <li>
-    <strong>ID:</strong> {{.Id}},
-    <strong>Relevance:</strong> {{.Relevance}},
-    <strong>Description:</strong> {{.Description}},
-    <strong>City:</strong> {{.City}},
-    <strong>Age Limit:</strong> {{.Age_limit}}
-    <strong>Задать голосование к предафише: </strong> <a href="/create_voting/{{.Id}}">Создать</a>
-    <strong>Посмотреть результаты голосования: </strong> <a href="/result_voting/{{.Id}}">Результаты</a>
-  </li>
+  <tr>
+    <td>{{.Id}}</td>
+    <td>{{.Relevance}}</td>
+    <td>{{.Description}}</td>
+    <td>{{.City}}</td>
+    <td>{{.Age_limit}}</td>
+    <td><a href="/create_voting/{{.Id}}">Создать</a></td>
+    <td><a href="/result_voting/{{.Id}}">Результаты</a></td>
+  </tr>
   {{end}}
-</ul>
+  </tbody>
+</table>
 </body>
 </html>
 {{end}}
