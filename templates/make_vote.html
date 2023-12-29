@@ -1,17 +1,81 @@
 {{define "make_vote"}}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Make a vote</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+        }
 
+        h1, h2 {
+            color: #007bff;
+        }
+
+        nav.navbar {
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .date-checkbox {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.5); /* Make the checkboxes larger */
+            margin-left: 5px; /* Adjust the margin to the right */
+        }
+
+        input[type="number"] {
+            width: 60%; /* Make the input for entering the price smaller */
+            padding: 5px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Home</a>
-        </div>
-        </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Home</a>
+    </div>
+</nav>
 <h1>Проголосуйте в выбранной вами предафише</h1>
 <h2>Ваша роль: фанат</h2>
 <form action="/make_vote" method="post">
@@ -19,16 +83,16 @@
     <strong>Список доступных дат:</strong>
     <ul>
         {{range .Dates}}
-        <li>
+        <li class="date-checkbox">
             <label for="date_{{.Id}}"><strong>Дата: </strong> {{.Date}}</label>
             <input type="checkbox" name="date" id="date_{{.Id}}" value="{{.Id}}"> Ваш выбор
         </li>
         {{end}}
     </ul>
     <label for="max_price"><strong>Максимальная цена, которую вы готовы заплатить за концерт</strong></label>
-    <input type="number" min = 100 max = 1000000 name="max_price" id="max_price">
+    <input type="number" min="100" max="1000000" name="max_price" id="max_price">
     <input type="hidden" name="billboard_id" id="billboard_id" value="{{.IdBillboard}}">
-    <input type="submit" value="Проголосовать">
+    <input type="submit" class="btn btn-success" value="Проголосовать">
 </form>
 </body>
 </html>

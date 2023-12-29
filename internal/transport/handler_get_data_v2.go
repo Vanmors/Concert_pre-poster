@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -162,7 +163,31 @@ func (h *Handler) PostMakeVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = tmpl.ExecuteTemplate(w, path, userData)
+	type ResponseDates struct {
+		IdBillboard string
+		MaxPrice    string
+		StringDates []time.Time
+	}
+
+	respDates := ResponseDates{
+		IdBillboard: userData.IdBillboard,
+		StringDates: nil,
+	}
+
+	for _, val := range userData.StringDates {
+		id := util.MustAtoi(val)
+		date, err := h.Repos.FirstVotingStage.GetDateById(id)
+		if err == nil {
+			respDates.StringDates = append(respDates.StringDates, date)
+		}
+	}
+
+	if respDates.StringDates == nil {
+		fmt.Fprintf(w, "Вы не ввели данные")
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, path, respDates)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -268,7 +293,8 @@ func (h *Handler) GetResultVoting(w http.ResponseWriter, r *http.Request) {
 
 	count, average, err := h.Service.CalculateMetricsFirstVoting(billboardId)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Fprintf(w, "Извините, но за вашу предафишу еще никто не проголосовал.")
 		return
 	}
 	fmt.Println(count)

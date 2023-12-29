@@ -28,6 +28,7 @@ type FirstVotingStage interface {
 	AddDate(idBillboard int, date time.Time) (int, error)
 	AddDatesInBatch(idBillboard int, dates []time.Time) error
 	GetMetrics(idBillboard int) (int, float64, error)
+	GetDateById(id int) (time.Time, error)
 }
 
 type Repositories struct {

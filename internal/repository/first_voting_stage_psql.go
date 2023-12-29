@@ -118,6 +118,18 @@ func (f *FirstVotingStagePsql) AddDate(idBillboard int, date time.Time) (int, er
 	return id, nil
 }
 
+func (f *FirstVotingStagePsql) GetDateById(id int) (time.Time, error) {
+	row := f.conn.QueryRow("select date from date where id = $1", id)
+
+	var date time.Time
+
+	err := row.Scan(&date)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return date, nil
+}
+
 func (f *FirstVotingStagePsql) AddDatesInBatch(idBillboard int, dates []time.Time) error {
 	for _, date := range dates {
 		_, err := f.conn.Exec(

@@ -26,10 +26,11 @@
   <div id="dateInputs">
     <!-- Мое добавление полей для ввода (даты, окда) -->
   </div>
-  <button type="button" onclick="addDateInput()">Добавить дату</button>
+  <button type="button" class="btn btn-secondary" onclick="addDateInput()">Добавить дату</button>
   <br>
   <input type="hidden" name="billboard_id" id="billboard_id" value="{{.IdBillboard}}">
-  <input type="submit" value="Отправить">
+  <br/><br>
+  <input type="submit" class="btn btn-success" value="Отправить">
 </form>
 
 <script>
@@ -40,6 +41,7 @@
     input.type = 'datetime-local';
     input.name = 'dates';
     input.className = 'date-input';
+    input.required = true;
 
     dateInputsContainer.appendChild(input);
   }
