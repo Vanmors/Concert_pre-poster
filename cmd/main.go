@@ -4,15 +4,32 @@ import (
 	"concert_pre-poster/internal/repository"
 	"concert_pre-poster/internal/service"
 	"concert_pre-poster/internal/transport"
+	// "context"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	// "github.com/redis/go-redis/v9"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	repos, err := repository.NewRepositories("concert_pre-poster", "postgres", "nav461")
-	// repos, err := repository.NewRepositories("ToDelete", "postgres", "Tylpa31")
+	// загружаем файл конфигурации
+	viper.SetConfigFile("config.yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	// Получаем значения из конфигурации
+	username := viper.GetString("database.username")
+	password := viper.GetString("database.password")
+	dbname := viper.GetString("database.dbname")
+
+	// используем данные из файла конфигурации для подключения к бд
+	repos, err := repository.NewRepositories(dbname, username, password)
+
 	if err != nil {
 		log.Fatal(err)
 	}
