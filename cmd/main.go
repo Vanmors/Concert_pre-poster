@@ -1,16 +1,15 @@
 package main
 
 import (
+	"concert_pre-poster/internal/auth"
 	"concert_pre-poster/internal/repository"
 	"concert_pre-poster/internal/service"
 	"concert_pre-poster/internal/transport"
-	// "context"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	// "github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 )
 
@@ -34,13 +33,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	servs := service.NewService(repos)
+
+	servs := service.NewVotingService(repos)
 
 	//handler := transport.NewHandler(repos)
 	handler := transport.NewHandler2(repos, servs)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/", handler.IndexHandler)
+	router.HandleFunc("/", auth.CookieAuth)
+	router.HandleFunc("/get_cookie", auth.GetCookie)
+	router.HandleFunc("/role", handler.IndexHandler)
 	router.HandleFunc("/submit", handler.OutputBillboards)
 	router.HandleFunc("/make_vote/{id:[0-9]+}", handler.GetMakeVote).Methods("GET")
 	router.HandleFunc("/make_vote", handler.PostMakeVote).Methods("POST")
