@@ -10,17 +10,6 @@ import (
 	"time"
 )
 
-var loginFormTmpl = `
-  <html>
-	<body>
-	<form action="/get_cookie" method="post">
-	  Login: <input type="text" name="login">
-	  Password: <input type="password" name="password">
-	  <input type="submit" value="Login">
-	</form>
-	</body>
-  </html>
-  `
 
 var redisClient *redis.Client
 
@@ -47,7 +36,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 			// Если куки не существует или ошибка, перенаправляем пользователя на страницу аутентификации
 			if err == http.ErrNoCookie {
-				w.Write([]byte(loginFormTmpl))
+				http.ServeFile(w, r, "./templates/login.html") 
 				return
 			} else if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -60,7 +49,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			fmt.Println(username)
 			// Если сессия не найдена в Redis, перенаправляем пользователя на страницу аутентификации
 			if err != nil {
-				w.Write([]byte(loginFormTmpl))
+				http.ServeFile(w, r, "./templates/login.html") 
 				return
 			}
 		}
