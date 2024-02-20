@@ -5,10 +5,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+	"github.com/spf13/viper"
 )
 
 func prepareRepo(t *testing.T) (*FirstVotingStagePsql, *BillboardPsql) {
-	db, err := sqlstore.NewClient("ToDelete", "postgres", "Tylpa31")
+	viper.SetConfigFile("../../config/config.yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	// Получаем значения из конфигурации
+	username := viper.GetString("database.username")
+	password := viper.GetString("database.password")
+	dbname := viper.GetString("database.dbname")
+
+	db, err := sqlstore.NewClient(dbname, username, password)
 	assert.NoError(t, err)
 	return NewFirstVotingStagePsql(db), NewBillboardPsql(db)
 }

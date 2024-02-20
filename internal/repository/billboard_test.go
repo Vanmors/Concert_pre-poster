@@ -2,13 +2,29 @@ package repository
 
 import (
 	"concert_pre-poster/pkg/store/sqlstore"
+
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetBillboard(t *testing.T) {
-	db, err := sqlstore.NewClient("concert_pre-poster", "postgres", "password")
+
+	viper.SetConfigFile("../../config/config.yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	// Получаем значения из конфигурации
+	username := viper.GetString("database.username")
+	password := viper.GetString("database.password")
+	dbname := viper.GetString("database.dbname")
+
+	db, err := sqlstore.NewClient(dbname, username, password)
+
+	t.Logf("%+v", err)
 	billboardRepo := NewBillboardPsql(db)
 	billboards, err := billboardRepo.GetBillboard()
 	for _, val := range billboards {
