@@ -1,15 +1,17 @@
 package auth
 
 import (
+	"concert_pre-poster/internal/cache/redisCache"
+	"context"
 	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
+
 	"github.com/redis/go-redis/v9"
-	"context"
-  )
-  
-  var loginFormTmpl = `
+)
+
+var loginFormTmpl = `
   <html>
 	<body>
 	<form action="/get_cookie" method="post">
@@ -21,27 +23,29 @@ import (
   </html>
   `
 
-  func init() {
-    redisClient := redis.NewClient(&redis.Options{
-        Addr:     "localhost:6379", // Адрес вашего Redis сервера
-        Password: "",               // Пароль Redis сервера, если есть
-        DB:       0,                // Номер базы данных Redis
-    })
+var redisClient *redis.Client
+
+func init() {
+	redisClient = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379", // Адрес вашего Redis сервера
+		Password: "",               // Пароль Redis сервера, если есть
+		DB:       0,                // Номер базы данных Redis
+	})
 
 	ctx := context.Background()
-    // Проверка соединения с Redis
-    _, err := redisClient.Ping(ctx).Result()
-    if err != nil {
-        panic(err)
-    }
+	// Проверка соединения с Redis
+	_, err := redisClient.Ping(ctx).Result()
+	if err != nil {
+		panic(err)
+	}
 }
 
-  var sessions = map[string]string{}
-  
-  func CookieAuth(w http.ResponseWriter, r *http.Request) {
-  
+var sessions = map[string]string{}
+
+func CookieAuth(w http.ResponseWriter, r *http.Request) {
+
 	sessionID, err := r.Cookie("session_id")
-  
+
 	if err == http.ErrNoCookie {
 		w.Write([]byte(loginFormTmpl))
 		return
@@ -49,80 +53,55 @@ import (
 		PanicOnErr(err)
 	}
 
-	// инициализация redis
-	redisClient := redis.NewClient(&redis.Options{
-        Addr:     "localhost:6379", // Адрес вашего Redis сервера
-        Password: "",               // Пароль Redis сервера, если есть
-        DB:       0,                // Номер базы данных Redis
-    })
+	session := redisCache.NewRedisCache(redisClient)
 
-	ctx := context.Background()
+	username, err := session.GetValue(context.Background(), sessionID.Value)
 
-    // Проверка соединения с Redis
-    _, err = redisClient.Ping(ctx).Result()
-    if err != nil {
-        panic(err)
-    }
-
-	username, err := redisClient.Get(ctx,sessionID.Value).Result()
-
-	if err == redis.Nil {
+	if err != nil {
 		fmt.Fprint(w, "Session not found")
 	} else {
-		fmt.Fprint(w, "Welcome, " + username)
+		fmt.Fprint(w, "Welcome, "+username)
 	}
 }
-  
 
-	func GetCookie(w http.ResponseWriter, r *http.Request) {
+func GetCookie(w http.ResponseWriter, r *http.Request) {
 
-	  r.ParseForm()
-	  inputLogin := r.Form["login"][0]
-	  expiration := time.Now().Add(365 * 24 * time.Hour)
-  
-	  sessionID := RandStringRunes(32)
-	  sessions[sessionID] = inputLogin
-	
-	// инициализация redis
-	  redisClient := redis.NewClient(&redis.Options{
-        Addr:     "localhost:6379", // Адрес вашего Redis сервера
-        Password: "",               // Пароль Redis сервера, если есть
-        DB:       0,                // Номер базы данных Redis
-    })
+	r.ParseForm()
+	inputLogin := r.Form["login"][0]
+	expiration := time.Now().Add(365 * 24 * time.Hour)
 
-	ctx := context.Background()
-    // Проверка соединения с Redis
-    _, err := redisClient.Ping(ctx).Result()
-    if err != nil {
-        panic(err)
-    }
 
-	  err = redisClient.Set(ctx, sessionID, inputLogin, 0).Err()
-	  if err != nil {
-		  panic(err)
-	  }
+	sessionID := RandStringRunes(32)
+	sessions[sessionID] = inputLogin
 
-	  cookie := http.Cookie{Name: "session_id", Value: sessionID, Expires: expiration}
-	  http.SetCookie(w, &cookie)
-	  
-	  http.Redirect(w, r, "/", http.StatusFound)
+	session := redisCache.NewRedisCache(redisClient)
 
-	}
-  
-  
-  // PanicOnErr panics on error
-  func PanicOnErr(err error) {
+	err := session.SetValue(context.Background(), sessionID, inputLogin, 0)
+
 	if err != nil {
-	  panic(err)
+		panic(err)
 	}
-  }
-  
-  var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-  
-  func RandStringRunes(n int) string {
+
+	cookie := http.Cookie{Name: "session_id", Value: sessionID, Expires: expiration}
+	http.SetCookie(w, &cookie)
+
+	http.Redirect(w, r, "/", http.StatusFound)
+
+}
+
+// PanicOnErr panics on error
+func PanicOnErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-	  b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
 	return string(b)
-  }
+}
