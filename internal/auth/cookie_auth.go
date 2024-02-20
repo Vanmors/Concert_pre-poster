@@ -4,11 +4,10 @@ import (
 	"concert_pre-poster/internal/cache/redisCache"
 	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"math/rand"
 	"net/http"
 	"time"
-
-	"github.com/redis/go-redis/v9"
 )
 
 var loginFormTmpl = `
@@ -40,28 +39,35 @@ func init() {
 	}
 }
 
-var sessions = map[string]string{}
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-func CookieAuth(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/login" && r.URL.Path != "/get_cookie" {
+			sessionID, err := r.Cookie("session_id")
 
-	sessionID, err := r.Cookie("session_id")
+			// Если куки не существует или ошибка, перенаправляем пользователя на страницу аутентификации
+			if err == http.ErrNoCookie {
+				w.Write([]byte(loginFormTmpl))
+				return
+			} else if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 
-	if err == http.ErrNoCookie {
-		w.Write([]byte(loginFormTmpl))
-		return
-	} else if err != nil {
-		PanicOnErr(err)
-	}
+			session := redisCache.NewRedisCache(redisClient)
+			username, err := session.GetValue(context.Background(), sessionID.Value)
 
-	session := redisCache.NewRedisCache(redisClient)
+			fmt.Println(username)
+			// Если сессия не найдена в Redis, перенаправляем пользователя на страницу аутентификации
+			if err != nil {
+				w.Write([]byte(loginFormTmpl))
+				return
+			}
+		}
 
-	username, err := session.GetValue(context.Background(), sessionID.Value)
-
-	if err != nil {
-		fmt.Fprint(w, "Session not found")
-	} else {
-		fmt.Fprint(w, "Welcome, "+username)
-	}
+		// Если пользователь авторизован, продолжаем обработку запроса
+		next.ServeHTTP(w, r)
+	})
 }
 
 func GetCookie(w http.ResponseWriter, r *http.Request) {
@@ -70,9 +76,7 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 	inputLogin := r.Form["login"][0]
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 
-
 	sessionID := RandStringRunes(32)
-	sessions[sessionID] = inputLogin
 
 	session := redisCache.NewRedisCache(redisClient)
 

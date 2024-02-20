@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// загружаем файл конфигурации
-	viper.SetConfigFile("config.yaml")
+	viper.SetConfigFile("config/config.yaml")
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
@@ -33,16 +33,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-
 	servs := service.NewVotingService(repos)
 
 	//handler := transport.NewHandler(repos)
 	handler := transport.NewHandler2(repos, servs)
 
 	router := mux.NewRouter()
-	router.HandleFunc("/", auth.CookieAuth)
+
+	router.Use(auth.AuthMiddleware)
+	router.HandleFunc("/", handler.IndexHandler)
 	router.HandleFunc("/get_cookie", auth.GetCookie)
-	router.HandleFunc("/role", handler.IndexHandler)
 	router.HandleFunc("/submit", handler.OutputBillboards)
 	router.HandleFunc("/make_vote/{id:[0-9]+}", handler.GetMakeVote).Methods("GET")
 	router.HandleFunc("/make_vote", handler.PostMakeVote).Methods("POST")
@@ -51,6 +51,7 @@ func main() {
 	router.HandleFunc("/result_voting/{id:[0-9]+}", handler.GetResultVoting).Methods("GET")
 	router.HandleFunc("/create_billboard", handler.GetBillboard).Methods("GET")
 	router.HandleFunc("/create_billboard", handler.PostBillboard).Methods("POST")
+
 	http.Handle("/", router)
 
 	fmt.Println("Server is listening...")
