@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-/*
-1) внести голос за первый этап
-2) внести голоса за первый этап - целой пачкой дат
-3) получить информацию по своему голосу - по id фанату
-4) получить информацию по id предафиши
-*/
-
 type FirstVotingStagePsql struct {
 	conn *sql.DB
 }
@@ -25,16 +18,10 @@ func NewFirstVotingStagePsql(db *sql.DB) *FirstVotingStagePsql {
 }
 
 func (f *FirstVotingStagePsql) DoVote(idBillboard, idUser, idDate, maxTicketPrice int) (int, error) {
-	/*
-		_, err := f.conn.Exec(
-			"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES (?, ?, ?, ?)",
-			idBillboard, idUser, idDate, maxTicketPrice,
-		)
 
-	*/
 	tmp := f.conn.QueryRow(
 		"INSERT INTO first_voting (id_billboard, id_user, id_date, max_ticket_price) VALUES ($1, $2, $3, $4) returning id",
-		idBillboard, idUser, idDate, maxTicketPrice,
+		idBillboard, idUser, 1, maxTicketPrice,
 	)
 	var id int
 	err := tmp.Scan(&id)
@@ -98,13 +85,6 @@ func (f *FirstVotingStagePsql) GetFirstVotingInfoForBillboard(billboardId int) (
 }
 
 func (f *FirstVotingStagePsql) AddDate(idBillboard int, date time.Time) (int, error) {
-	/*
-		_, err := f.conn.Exec(
-			"INSERT INTO date (id_billboard, date ) VALUES (?, ?)",
-			idBillboard, date,
-		)
-
-	*/
 	tmp := f.conn.QueryRow(
 		"INSERT INTO date (id_billboard, date )  VALUES ($1, $2) returning id",
 		idBillboard, date,

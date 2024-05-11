@@ -2,22 +2,36 @@ package auth
 
 import (
 	"concert_pre-poster/internal/cache/redisCache"
+	"concert_pre-poster/pkg/util"
 	"context"
-	"fmt"
+
 	"github.com/redis/go-redis/v9"
-	"math/rand"
+
 	"net/http"
 	"time"
-)
 
+	"github.com/spf13/viper"
+)
 
 var redisClient *redis.Client
 
 func init() {
+
+	viper.SetConfigFile("config/config.yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	// Получаем значения из конфигурации
+	host := viper.GetString("redis.host")
+	password := viper.GetString("redis.password")
+	count := viper.GetInt("redis.countOfDataBase")
+
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // Адрес вашего Redis сервера
-		Password: "",               // Пароль Redis сервера, если есть
-		DB:       0,                // Номер базы данных Redis
+		Addr:     host,     // Адрес вашего Redis сервера
+		Password: password, // Пароль Redis сервера, если есть
+		DB:       count,    // Номер базы данных Redis
 	})
 
 	ctx := context.Background()
@@ -36,7 +50,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 			// Если куки не существует или ошибка, перенаправляем пользователя на страницу аутентификации
 			if err == http.ErrNoCookie {
-				http.ServeFile(w, r, "./templates/login.html") 
+				http.ServeFile(w, r, "./templates/login.html")
 				return
 			} else if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -44,12 +58,11 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			}
 
 			session := redisCache.NewRedisCache(redisClient)
-			username, err := session.GetValue(context.Background(), sessionID.Value)
+			_, err = session.GetValue(context.Background(), sessionID.Value)
 
-			fmt.Println(username)
 			// Если сессия не найдена в Redis, перенаправляем пользователя на страницу аутентификации
 			if err != nil {
-				http.ServeFile(w, r, "./templates/login.html") 
+				http.ServeFile(w, r, "./templates/login.html")
 				return
 			}
 		}
@@ -65,7 +78,7 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 	inputLogin := r.Form["login"][0]
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 
-	sessionID := RandStringRunes(32)
+	sessionID := util.RandStringRunes(32)
 
 	session := redisCache.NewRedisCache(redisClient)
 
@@ -80,21 +93,4 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/", http.StatusFound)
 
-}
-
-// PanicOnErr panics on error
-func PanicOnErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func RandStringRunes(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
 }

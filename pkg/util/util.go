@@ -3,6 +3,7 @@ package util
 import (
 	"strconv"
 	"time"
+	"math/rand"
 )
 
 func MustAtoi(input string) int {
@@ -34,4 +35,14 @@ func StringsToTimes(input []string) ([]time.Time, error) {
 		times = append(times, parsedTime)
 	}
 	return times, nil
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

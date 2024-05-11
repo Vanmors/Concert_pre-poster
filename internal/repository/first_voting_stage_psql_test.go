@@ -2,10 +2,10 @@ package repository
 
 import (
 	"concert_pre-poster/pkg/store/sqlstore"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"github.com/spf13/viper"
 )
 
 func prepareRepo(t *testing.T) (*FirstVotingStagePsql, *BillboardPsql) {
@@ -40,4 +40,11 @@ func TestDoVote(t *testing.T) {
 	id, err := firstVoteStageRepo.DoVote(idBillBoard, 1, idDate, 200)
 	assert.NoError(t, err)
 	t.Log("id: ", id)
+}
+
+func TestGetFirstVotingInfoForUser(t *testing.T) {
+	firstVoteStageRepo, _ := prepareRepo(t)
+	_, err := firstVoteStageRepo.GetFirstVotingInfoForBillboard(1)
+	t.Log(err)
+	assert.NoError(t, err)
 }

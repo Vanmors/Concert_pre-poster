@@ -14,10 +14,8 @@ type Billboard interface {
 	GetBillboardAvailableDates(billboardId int) ([]*domain.Date, error)
 }
 
-type PreliminaryResults interface {
-}
-
-type FinalResults interface {
+type User interface {
+	//GetUserByEmail(email string) (domain.User, error)
 }
 
 type FirstVotingStage interface {
@@ -32,10 +30,9 @@ type FirstVotingStage interface {
 }
 
 type Repositories struct {
-	Billboard          Billboard
-	PreliminaryResults PreliminaryResults
-	FinalResults       FinalResults
-	FirstVotingStage   FirstVotingStage
+	Billboard        Billboard
+	FirstVotingStage FirstVotingStage
+	User             User
 }
 
 func NewRepositories(dbname, username, password string) (*Repositories, error) {
@@ -46,5 +43,6 @@ func NewRepositories(dbname, username, password string) (*Repositories, error) {
 	return &Repositories{
 		Billboard:        NewBillboardPsql(db),
 		FirstVotingStage: NewFirstVotingStagePsql(db),
+		User:             NewUserPsql(db),
 	}, nil
 }

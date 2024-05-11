@@ -6,17 +6,17 @@ import (
 	"time"
 )
 
-type Service struct {
+type VotingService struct {
 	repos *repository.Repositories
 }
 
-func NewService(Repos *repository.Repositories) *Service {
-	return &Service{
+func NewVotingService(Repos *repository.Repositories) *VotingService {
+	return &VotingService {
 		repos: Repos,
 	}
 }
 
-func (s *Service) Create_voting_service(idBillboard string, stringDates []string) error {
+func (s *VotingService) Create_voting_service(idBillboard string, stringDates []string) error {
 	var layout = "2006-01-02T15:04"
 
 	for _, date := range stringDates {
@@ -37,7 +37,7 @@ func (s *Service) Create_voting_service(idBillboard string, stringDates []string
 	return nil
 }
 
-func (s *Service) CalculateMetricsFirstVoting(idBillboard int) (int, float64, error) {
+func (s *VotingService) CalculateMetricsFirstVoting(idBillboard int) (int, float64, error) {
 	countVotes, averagePrice, err := s.repos.FirstVotingStage.GetMetrics(idBillboard)
 	if err != nil {
 		return 0, 0, err
