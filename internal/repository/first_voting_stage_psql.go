@@ -3,8 +3,9 @@ package repository
 import (
 	"concert_pre-poster/internal/domain"
 	"database/sql"
-	"fmt"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type FirstVotingStagePsql struct {
@@ -27,6 +28,7 @@ func (f *FirstVotingStagePsql) DoVote(idBillboard, idUser, idDate, maxTicketPric
 	err := tmp.Scan(&id)
 
 	if err != nil {
+		log.Error(err)
 		//return wrapErrorFromDB(err)
 		return 0, err
 	}
@@ -40,6 +42,7 @@ func (f *FirstVotingStagePsql) DoVoteInBatch(idDates []int, idBillboard, idUser,
 			idBillboard, idUser, idDate, maxTicketPrice,
 		)
 		if err != nil {
+			log.Error(err)
 			return wrapErrorFromDB(err)
 		}
 	}
@@ -49,6 +52,7 @@ func (f *FirstVotingStagePsql) DoVoteInBatch(idDates []int, idBillboard, idUser,
 func (f *FirstVotingStagePsql) GetFirstVotingInfoForUser(userId int) (*[]domain.FirstVoting, error) {
 	rows, err := f.conn.Query("SELECT * FROM first_voting WHERE id_user = ?", userId)
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -57,6 +61,7 @@ func (f *FirstVotingStagePsql) GetFirstVotingInfoForUser(userId int) (*[]domain.
 		firstVoting := domain.FirstVoting{}
 		err = rows.Scan(&firstVoting.Id, &firstVoting.IdBillboard, &firstVoting.IdUser, &firstVoting.IdDate, &firstVoting.MaxTicketPrice)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		firstVotings = append(firstVotings, firstVoting)
@@ -68,6 +73,7 @@ func (f *FirstVotingStagePsql) GetFirstVotingInfoForUser(userId int) (*[]domain.
 func (f *FirstVotingStagePsql) GetFirstVotingInfoForBillboard(billboardId int) (*[]domain.FirstVoting, error) {
 	rows, err := f.conn.Query("SELECT * FROM first_voting WHERE id_billboard = ?", billboardId)
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -76,6 +82,7 @@ func (f *FirstVotingStagePsql) GetFirstVotingInfoForBillboard(billboardId int) (
 		firstVoting := domain.FirstVoting{}
 		err = rows.Scan(&firstVoting.Id, &firstVoting.IdBillboard, &firstVoting.IdUser, &firstVoting.IdDate, &firstVoting.MaxTicketPrice)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		firstVotings = append(firstVotings, firstVoting)
@@ -93,6 +100,7 @@ func (f *FirstVotingStagePsql) AddDate(idBillboard int, date time.Time) (int, er
 	err := tmp.Scan(&id)
 
 	if err != nil {
+		log.Error(err)
 		return 0, wrapErrorFromDB(err)
 	}
 	return id, nil
@@ -105,6 +113,7 @@ func (f *FirstVotingStagePsql) GetDateById(id int) (time.Time, error) {
 
 	err := row.Scan(&date)
 	if err != nil {
+		log.Error(err)
 		return time.Time{}, err
 	}
 	return date, nil
@@ -117,6 +126,7 @@ func (f *FirstVotingStagePsql) AddDatesInBatch(idBillboard int, dates []time.Tim
 			idBillboard, date,
 		)
 		if err != nil {
+			log.Error(err)
 			return wrapErrorFromDB(err)
 		}
 	}
@@ -131,7 +141,7 @@ func (f *FirstVotingStagePsql) GetMetrics(idBillboard int) (int, float64, error)
 
 	err := row.Scan(&count, &average_ticket_price)
 	if err != nil {
-		fmt.Println("Ошибка при сканировании значений:", err)
+		log.Error("Error while scanning values", err)
 		return 0, 0, err
 	}
 	return count, average_ticket_price, nil

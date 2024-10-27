@@ -5,6 +5,8 @@ import (
 	_ "concert_pre-poster/pkg/store/sqlstore"
 	"database/sql"
 	_ "time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type UserPsql struct {
@@ -21,6 +23,7 @@ func (u *UserPsql) GetUserByEmail(email string) (domain.User, error) {
 	rows, err := u.conn.Query("SELECT * FROM user WHERE email = ?", email)
 
 	if err != nil {
+		log.Error(err)
 		return domain.User{}, err
 	}
 	defer rows.Close()
@@ -32,6 +35,7 @@ func (u *UserPsql) GetUserByEmail(email string) (domain.User, error) {
 	user := domain.User{}
 	err = rows.Scan(&user.Id, &user.Name, &user.Email, &user.Hashed_password, &user.Phone_number, &user.Birthday)
 	if err != nil {
+		log.Error(err)
 		return domain.User{}, err
 	}
 

@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/redis/go-redis/v9"
+	log "github.com/sirupsen/logrus"
 
 	"net/http"
 	"time"
@@ -20,7 +21,7 @@ func init() {
 	viper.SetConfigFile("config/config.yaml")
 
 	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Получаем значения из конфигурации
@@ -38,7 +39,7 @@ func init() {
 	// Проверка соединения с Redis
 	_, err := redisClient.Ping(ctx).Result()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
@@ -85,7 +86,7 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 	err := session.SetValue(context.Background(), sessionID, inputLogin, 0)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	cookie := http.Cookie{Name: "session_id", Value: sessionID, Expires: expiration}

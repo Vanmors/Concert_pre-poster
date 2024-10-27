@@ -1,9 +1,11 @@
 package util
 
 import (
+	"math/rand"
 	"strconv"
 	"time"
-	"math/rand"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func MustAtoi(input string) int {
@@ -16,6 +18,7 @@ func StringsToInts(input []string) ([]int, error) {
 	for _, val := range input {
 		tmp, err := strconv.Atoi(val)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		ints = append(ints, tmp)
@@ -30,6 +33,7 @@ func StringsToTimes(input []string) ([]time.Time, error) {
 	for _, val := range input {
 		parsedTime, err := time.Parse(layout, val)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		times = append(times, parsedTime)

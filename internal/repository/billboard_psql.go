@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -21,6 +22,7 @@ func NewBillboardPsql(db *sql.DB) *BillboardPsql {
 func (b *BillboardPsql) GetBillboard() ([]domain.Billboard, error) {
 	rows, err := b.conn.Query("SELECT * FROM billboard")
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -29,6 +31,7 @@ func (b *BillboardPsql) GetBillboard() ([]domain.Billboard, error) {
 		billboard := domain.Billboard{}
 		err = rows.Scan(&billboard.Id, &billboard.Relevance, &billboard.Description, &billboard.City, &billboard.Age_limit)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		billboards = append(billboards, billboard)
@@ -45,6 +48,7 @@ func (b *BillboardPsql) AddBillboard(relevance bool, description string, city st
 	var id int
 	err := tmp.Scan(&id)
 	if err != nil {
+		log.Error(err)
 		return 0, wrapErrorFromDB(err)
 	}
 	return id, nil
@@ -53,6 +57,7 @@ func (b *BillboardPsql) AddBillboard(relevance bool, description string, city st
 func (b *BillboardPsql) DeleteBilboardById(id int) error {
 	_, err := b.conn.Query("DELETE FROM billboard WHERE id = ?", id)
 	if err != nil {
+		log.Error(err)
 		return wrapErrorFromDB(err)
 	}
 	return nil
@@ -61,6 +66,7 @@ func (b *BillboardPsql) DeleteBilboardById(id int) error {
 func (b *BillboardPsql) GetBillboardByID(id int) (domain.Billboard, error) {
 	rows, err := b.conn.Query("SELECT * FROM billboard WHERE id = ?", id)
 	if err != nil {
+		log.Error(err)
 		return domain.Billboard{}, err
 	}
 	defer rows.Close()
@@ -70,6 +76,7 @@ func (b *BillboardPsql) GetBillboardByID(id int) (domain.Billboard, error) {
 		billboard := domain.Billboard{}
 		err := rows.Scan(&billboard.Id, &billboard.Relevance, &billboard.Description, &billboard.City, &billboard.Age_limit)
 		if err != nil {
+			log.Error(err)
 			return domain.Billboard{}, err
 		}
 		billboards = append(billboards, billboard)
@@ -87,6 +94,7 @@ func (b *BillboardPsql) GetBillboardAvailableDates(billboardId int) ([]*domain.D
 	rows, err := b.conn.Query("SELECT date.id, date FROM billboard JOIN date on billboard.id = date.id_billboard WHERE id_billboard = $1", billboardId)
 
 	if err != nil {
+		log.Error(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -97,6 +105,7 @@ func (b *BillboardPsql) GetBillboardAvailableDates(billboardId int) ([]*domain.D
 		}
 		err = rows.Scan(&date.Id, &date.Date)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		dates = append(dates, date)

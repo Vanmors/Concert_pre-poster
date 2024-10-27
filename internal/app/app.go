@@ -5,11 +5,11 @@ import (
 	"concert_pre-poster/internal/repository"
 	"concert_pre-poster/internal/service"
 	"concert_pre-poster/internal/transport"
-	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/spf13/viper"
-	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func Run() {
@@ -17,7 +17,7 @@ func Run() {
 	viper.SetConfigFile("config/config.yaml")
 
 	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
+		log.Fatal("Config file doesn't exist")
 	}
 
 	// Получаем значения из конфигурации
@@ -52,6 +52,6 @@ func Run() {
 
 	http.Handle("/", router)
 
-	fmt.Println("Server is listening...")
+	log.Info("Server is listening...")
 	http.ListenAndServe(":8080", nil)
 }

@@ -2,8 +2,10 @@ package redisCache
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	log "github.com/sirupsen/logrus"
 )
 
 type RedisCache struct {
@@ -23,6 +25,7 @@ func (r *RedisCache) SetValue(ctx context.Context, key string, value string, exp
 func (r *RedisCache) GetValue(ctx context.Context, key string) (string, error) {
 	val, err := r.client.Get(ctx, key).Result()
 	if err != nil {
+		log.Error(err)
 		return "", err
 	}
 	return val, nil
