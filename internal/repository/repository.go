@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"concert_pre-poster/internal/db/migrations"
 	"concert_pre-poster/internal/domain"
 	"concert_pre-poster/pkg/store/sqlstore"
 	"time"
@@ -40,6 +41,7 @@ func NewRepositories(dbname, username, password string) (*Repositories, error) {
 	if err != nil {
 		return nil, wrapErrorFromDB(err)
 	}
+	migrations.Start(false, db)
 	return &Repositories{
 		Billboard:        NewBillboardPsql(db),
 		FirstVotingStage: NewFirstVotingStagePsql(db),
