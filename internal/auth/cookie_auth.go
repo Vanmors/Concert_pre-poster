@@ -92,6 +92,6 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{Name: "session_id", Value: sessionID, Expires: expiration}
 	http.SetCookie(w, &cookie)
 
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/role", http.StatusFound)
 
 }
