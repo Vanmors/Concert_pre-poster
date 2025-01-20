@@ -52,6 +52,9 @@ func Run() {
 
 	http.Handle("/", router)
 
-	log.Info("Server is listening...")
-	http.ListenAndServe(":8080", nil)
+
+	port := ":8080"
+	log.Info("Server is listening. http://localhost" + port + "/role")
+	http.ListenAndServe(port, nil)
+	
 }
