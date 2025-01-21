@@ -1,10 +1,13 @@
 package transport
 
 import (
+	"concert_pre-poster/internal/auth"
+	"concert_pre-poster/internal/cache/redisCache"
 	"concert_pre-poster/internal/domain"
 	"concert_pre-poster/internal/repository"
 	"concert_pre-poster/internal/service"
 	"concert_pre-poster/pkg/util"
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -25,6 +28,7 @@ func NewHandler(repos *repository.Repositories, serv *service.VotingService) *Ha
 	}
 }
 
+/*
 func (h *Handler) IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	tmpl, err := template.ParseFiles("./templates/index.html")
 	if err != nil {
@@ -39,6 +43,8 @@ func (h *Handler) IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+*/
+
 func (h *Handler) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 	type PageData struct {
 		Billboards []domain.Billboard
@@ -48,9 +54,12 @@ func (h *Handler) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	role := r.Form.Get("role")
-
+	cache := redisCache.NewRedisCache(auth.RedisClient)
+	role, err := cache.GetValue(context.Background(), "role")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	billboards, err := h.Repos.Billboard.GetBillboard()
 
 	if err != nil {
@@ -183,7 +192,7 @@ func (h *Handler) PostMakeVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if respDates.StringDates == nil {
-		fmt.Fprintf(w, "Вы не ввели данные")
+		fmt.Fprintf(w, "Вы не ввели данные или артист не предложил ни одну из возможных дат для проведения мероприятия")
 		return
 	}
 

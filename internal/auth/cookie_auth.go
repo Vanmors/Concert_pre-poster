@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var redisClient *redis.Client
+var RedisClient *redis.Client
 
 func init() {
 
@@ -29,7 +29,7 @@ func init() {
 	password := viper.GetString("redis.password")
 	count := viper.GetInt("redis.countOfDataBase")
 
-	redisClient = redis.NewClient(&redis.Options{
+	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     host,     // Адрес вашего Redis сервера
 		Password: password, // Пароль Redis сервера, если есть
 		DB:       count,    // Номер базы данных Redis
@@ -37,7 +37,7 @@ func init() {
 
 	ctx := context.Background()
 	// Проверка соединения с Redis
-	_, err := redisClient.Ping(ctx).Result()
+	_, err := RedisClient.Ping(ctx).Result()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			session := redisCache.NewRedisCache(redisClient)
+			session := redisCache.NewRedisCache(RedisClient)
 			_, err = session.GetValue(context.Background(), sessionID.Value)
 
 			// Если сессия не найдена в Redis, перенаправляем пользователя на страницу аутентификации
@@ -81,7 +81,7 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 
 	sessionID := util.RandStringRunes(32)
 
-	session := redisCache.NewRedisCache(redisClient)
+	session := redisCache.NewRedisCache(RedisClient)
 
 	err := session.SetValue(context.Background(), sessionID, inputLogin, 0)
 
@@ -91,7 +91,10 @@ func GetCookie(w http.ResponseWriter, r *http.Request) {
 
 	cookie := http.Cookie{Name: "session_id", Value: sessionID, Expires: expiration}
 	http.SetCookie(w, &cookie)
+	err = session.SetValue(context.Background(), "role", r.Form.Get("role"), time.Until(expiration))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	http.Redirect(w, r, "/role", http.StatusFound)
-
+	http.Redirect(w, r, "/billboards", http.StatusFound)
 }

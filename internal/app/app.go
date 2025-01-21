@@ -39,7 +39,7 @@ func Run() {
 	router := mux.NewRouter()
 
 	router.Use(auth.AuthMiddleware)
-	router.HandleFunc("/role", handler.IndexHandler)
+	//router.HandleFunc("/role", handler.IndexHandler)
 	router.HandleFunc("/get_cookie", auth.GetCookie)
 	router.HandleFunc("/billboards", handler.OutputBillboards)
 	router.HandleFunc("/make_vote/{id:[0-9]+}", handler.GetMakeVote).Methods("GET")
@@ -52,9 +52,8 @@ func Run() {
 
 	http.Handle("/", router)
 
-
 	port := ":8080"
-	log.Info("Server is listening. http://localhost" + port + "/role")
+	log.Info("Server is listening. http://localhost" + port + "/billboards")
 	http.ListenAndServe(port, nil)
-	
+
 }
