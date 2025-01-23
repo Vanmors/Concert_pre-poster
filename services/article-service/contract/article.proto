@@ -1,0 +1,32 @@
+syntax = "proto3";
+package article;
+option go_package = "article-service/article_grpc;article_grpc";
+
+
+service ArticleService {
+  rpc CreateArticle(CreateArticleRequest) returns (CreateArticleResponse);
+  rpc GetArticles(GetArticlesRequest) returns (GetArticlesResponse);
+}
+
+message CreateArticleRequest {
+  int64 id_performer = 1;
+  string article = 2;
+}
+
+message CreateArticleResponse {
+  int64 id_article = 1;
+}
+
+message GetArticlesRequest {
+  int64 id_performer = 1;
+}
+
+message GetArticlesResponse {
+  repeated Article articles = 1;
+}
+
+message Article {
+  int64 id_article = 1;
+  int64 id_performer = 2;
+  string article = 3;
+}

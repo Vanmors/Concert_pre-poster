@@ -1,0 +1,32 @@
+{{define "create_articles"}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Billboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        .label-input-spacing {
+            margin-bottom: 10px; /* Вы можете изменить значение на свое усмотрение */
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/billboards">Home</a>
+    </div>
+</nav>
+<h2>Submit Parameters</h2>
+<form action="/create_article" method="post">
+    <div class="col-md-12">
+        <label for="article" class="badge rounded-pill bg-primary label-input-spacing">Article:</label>
+        <textarea class="form-control" id="article" name="article" rows="10" required></textarea><br>
+    </div>
+    <br>
+    <input type="hidden" name="billboard_id" id="billboard_id" value="{{.IdBillboard}}">
+    <br/><br>
+    <input type="submit" class="btn btn-success" value="Submit">
+</form>
+</body>
+</html>
+{{end}}

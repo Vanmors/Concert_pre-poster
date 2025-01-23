@@ -1,6 +1,7 @@
 package transport
 
 import (
+	"concert_pre-poster/internal/article_supplier"
 	"concert_pre-poster/internal/auth"
 	"concert_pre-poster/internal/cache/redisCache"
 	"concert_pre-poster/internal/domain"
@@ -11,39 +12,134 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 )
 
 type Handler struct {
-	Repos   *repository.Repositories
-	Service *service.VotingService
+	Repos           *repository.Repositories
+	Service         *service.VotingService
+	ArticleSupplier *article_supplier.GrpcArticleClient
 }
 
-func NewHandler(repos *repository.Repositories, serv *service.VotingService) *Handler {
+func NewHandler(repos *repository.Repositories,
+	serv *service.VotingService,
+	article *article_supplier.GrpcArticleClient) *Handler {
+
 	return &Handler{
-		Repos:   repos,
-		Service: serv,
+		Repos:           repos,
+		Service:         serv,
+		ArticleSupplier: article,
 	}
 }
 
-/*
-func (h *Handler) IndexHandler(w http.ResponseWriter, _ *http.Request) {
-	tmpl, err := template.ParseFiles("./templates/index.html")
+func (h *Handler) GetCreateArticleStructure(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	type IdBillboard struct {
+		IdBillboard int `json:"idBillboard"`
+	}
+
+	billboardId, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("./templates/create_articles.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = tmpl.ExecuteTemplate(w, "index", nil)
+	err = tmpl.ExecuteTemplate(w, "create_articles", &IdBillboard{IdBillboard: billboardId})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-*/
+func (h *Handler) PostCreateArticleStructure(w http.ResponseWriter, r *http.Request) {
+	type IdArticle struct {
+		IdArticle int
+	}
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	id := r.FormValue("billboard_id")
+
+	billboardId, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userData := &domain.Article{
+		IdPerformer: int64(billboardId),
+		Article:     r.FormValue("article"),
+	}
+
+	articleId, err := h.ArticleSupplier.CreateArticle(context.Background(), userData)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("./templates/create_article_response.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, "create_article_response", &IdArticle{IdArticle: articleId})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) ListArticleForBillboard(w http.ResponseWriter, r *http.Request) {
+	type Articles struct {
+		Articles []*domain.Article
+	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	billboardId, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	articles, err := h.ArticleSupplier.ListAllArticlesForBillboard(context.Background(), billboardId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err = r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	path := "show_articles"
+
+	tmpl, err := template.ParseFiles("./templates/" + path + ".html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.ExecuteTemplate(w, path, Articles{Articles: articles})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
 
 func (h *Handler) OutputBillboards(w http.ResponseWriter, r *http.Request) {
 	type PageData struct {

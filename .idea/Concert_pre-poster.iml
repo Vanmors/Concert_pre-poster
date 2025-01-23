@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="Go" enabled="true">
+    <buildTags>
+      <option name="goVersion" value="1.20" />
+    </buildTags>
+  </component>
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/services/concert-preposter-service/.postgres-data" />
+      <excludeFolder url="file://$MODULE_DIR$/services/concert-preposter-service/.redis-data" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

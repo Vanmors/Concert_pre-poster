@@ -79,6 +79,7 @@
     <th>City</th>
     <th>Age Limit</th>
     <th>Vote</th>
+    <th>Show Articles</th>
   </tr>
   </thead>
   <tbody>
@@ -90,6 +91,7 @@
     <td>{{.City}}</td>
     <td>{{.Age_limit}}</td>
     <td><a href="/make_vote/{{.Id}}">Голосую</a></td>
+    <td><a href="/show_article/{{.Id}}">Посмотреть статьи</a></td>
   </tr>
   {{end}}
   </tbody>

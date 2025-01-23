@@ -82,6 +82,8 @@
     <th>Age Limit</th>
     <th>Создать голосование</th>
     <th>Результаты голосования</th>
+    <th>Создать статью</th>
+    <th>Посмотреть статьи</th>
   </tr>
   </thead>
   <tbody>
@@ -94,6 +96,8 @@
     <td>{{.Age_limit}}</td>
     <td><a href="/create_voting/{{.Id}}">Создать</a></td>
     <td><a href="/result_voting/{{.Id}}">Результаты</a></td>
+    <td><a href="/create_article/{{.Id}}">Создать статью</a></td>
+    <td><a href="/show_article/{{.Id}}">Посмотреть статьи</a></td>
   </tr>
   {{end}}
   </tbody>

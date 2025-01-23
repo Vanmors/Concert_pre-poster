@@ -1,10 +1,14 @@
 package app
 
 import (
+	"concert_pre-poster/internal/article_supplier"
 	"concert_pre-poster/internal/auth"
 	"concert_pre-poster/internal/repository"
 	"concert_pre-poster/internal/service"
 	"concert_pre-poster/internal/transport"
+	article_grpc "concert_pre-poster/protos"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -34,7 +38,18 @@ func Run() {
 
 	servs := service.NewVotingService(repos)
 
-	handler := transport.NewHandler(repos, servs)
+	log.Info("Dial to GRPC article_supplier")
+	conn, err := grpc.Dial("localhost:8081", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("error during connect to chat grpc server: %s", err.Error())
+	}
+	defer conn.Close()
+
+	articleSupplier := article_supplier.NewGrpcArticleClient(
+		article_grpc.NewArticleServiceClient(conn),
+	)
+
+	handler := transport.NewHandler(repos, servs, articleSupplier)
 
 	router := mux.NewRouter()
 
@@ -49,7 +64,9 @@ func Run() {
 	router.HandleFunc("/result_voting/{id:[0-9]+}", handler.GetResultVoting).Methods("GET")
 	router.HandleFunc("/create_billboard", handler.GetBillboard).Methods("GET")
 	router.HandleFunc("/create_billboard", handler.PostBillboard).Methods("POST")
-
+	router.HandleFunc("/create_article/{id:[0-9]+}", handler.GetCreateArticleStructure).Methods("GET")
+	router.HandleFunc("/create_article", handler.PostCreateArticleStructure).Methods("POST")
+	router.HandleFunc("/show_article/{id:[0-9]+}", handler.ListArticleForBillboard).Methods("GET")
 	http.Handle("/", router)
 
 	port := ":8080"

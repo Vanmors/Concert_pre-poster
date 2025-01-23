@@ -1,4 +1,4 @@
-.idea/
+../../.idea/
 .redis-data/
 .postgres-data/
 config/config.yaml

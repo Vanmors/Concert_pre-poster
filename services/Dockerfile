@@ -2,7 +2,7 @@ FROM golang:latest
 
 RUN go version
 ENV GOPATH=/
-COPY ./ ./
+COPY .. ./
 
 RUN apt-get update
 RUN apt-get -y install postgresql-client
